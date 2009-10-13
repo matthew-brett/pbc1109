@@ -1,4 +1,6 @@
 ''' File defining PBC data locations '''
+# this needed for python 2.5
+from __future__ import with_statement
 
 from os.path import join as pjoin
 from glob import glob
@@ -6,6 +8,14 @@ from glob import glob
 import numpy as np
 
 import dipy.io.trackvis as tv
+
+
+def load_txt(fname):
+    lines = []
+    with open(fname, 'rt') as f:
+        for line in f:
+            lines.append([val.strip() for val in line.split('  ') if val])
+    return lines
 
 
 class DataError(Exception):
@@ -51,6 +61,10 @@ class PBCData(object):
         if labels_fname:
             arr  = np.fromfile(labels_fname, dtype=np.uint, sep=' ')
             data['labels'] = arr.reshape((-1,2))
+        ids_fname = self._get_onefile(glob_prefix +
+                                      'bundle_ids.txt')
+        if ids_fname:
+            data['label_ids'] = load_txt(ids_fname)
         self._cache[(subject, scan)] = data
         return data
 

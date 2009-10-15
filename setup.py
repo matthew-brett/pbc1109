@@ -11,6 +11,8 @@ setup(name='pbc1109',
       author_email='matthew.brett@gmail.com',
       url='http://github.com/matthew-brett/pbc1109',
       packages=['pbc1109'],
+      package_data={'pbc1109': ['tests/data/brain3/*',
+                                'tests/*.py']},
       scripts=glob('scripts/*.py')
       )
 

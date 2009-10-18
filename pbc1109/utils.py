@@ -28,7 +28,7 @@ def mm2vox(xyz, hdr):
     array([[ 1.,  0.,  0.],
            [ 2.,  1.,  1.]])
     '''
-    return np.floor(xyz / hdr['voxel_size'])
+    return np.floor(xyz / hdr['voxel_size']).astype(np.int32)
 
 
 def vox2mm(vxyz, hdr):

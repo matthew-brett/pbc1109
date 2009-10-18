@@ -26,8 +26,10 @@ def track_counts(tracks, vol_dims, vox_sizes):
     
     '''
     tcs = np.zeros(vol_dims, dtype=np.uint16)
+    vox_sizes = np.array(vox_sizes, dtype=np.float)
     for t in tracks:
-        t = np.round(t / vox_sizes).astype(np.int32)
-        for p in t:
+        ti = np.round(t / vox_sizes).astype(np.int32)
+        assert ti.dtype.kind == 'i'
+        for p in ti:
             tcs[p] += 1
     return tcs

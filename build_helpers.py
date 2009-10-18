@@ -17,6 +17,9 @@ def make_cython_ext(modulename,
     (`has_cython` == True) or the Cython-generated C files (`has_cython`
     == False).
 
+    Assumes ``pyx`` or C file has the same path as that implied by
+    modulename. 
+
     Parameters
     ----------
     modulename : string

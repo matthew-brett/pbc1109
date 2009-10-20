@@ -30,7 +30,10 @@ track_volumes.so: ${PKGDIR}/track_volumes.pyx
 
 .PHONY: clean
 clean:
-	rm -rf *~ ${PKGDIR}/*.so ${PKGDIR}/*.c ${PKGDIR}/*.o ${PKGDIR}/*.html build ${PKGDIR}/*.pyc ${TESTDIR}/*.pyc
+	rm -rf *~ ${PKGDIR}/*.so ${PKGDIR}/*.c ${PKGDIR}/*.o \
+		${PKGDIR}/*.html build \
+		*.pyc ${PKGDIR}/*.pyc ${TESTDIR}/*.pyc
+
 
 # Suffix rules
 %.c : %.pyx

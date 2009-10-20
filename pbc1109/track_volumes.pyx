@@ -31,7 +31,8 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
        voxel sizes in mm
     return_elements : {True, False}, optional
        If True, return also dictionary giving, for each non-zero count
-       voxel, the indices of the tracks passing through it.
+       voxel, the indices of the tracks, indices of track points,
+       passing through it.
 
     Returns
     -------
@@ -40,10 +41,10 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
        that passed through voxel at voxel coordinate x, y, z
     tes : dict
        If `return_elements` is True, we also return a dict where the
-       keys are the tuples giving array indices of voxels with one or
-       more track passing through the voxel.  The values are a list
-       of tuples ``tps`` where ``tps[0]`` is the index of the track that
-       passed through the voxels, and ``tps[1]`` is the index of the
+       keys are tuples giving array indices of voxels with one or more
+       track(s) passing through the voxel.  The values are a list of
+       tuples ``tps`` where ``tps[0]`` is the index of the track that
+       passed through the voxel, and ``tps[1]`` is the index of the
        first point in the track that passed through the voxel.
     '''
     vol_dims = np.asarray(vol_dims).astype(np.int)

@@ -10,7 +10,7 @@ cdef extern from "math.h":
     double floor(double x)
 
 
-def track_counts(tracks, vol_dims, vox_sizes):
+def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     ''' Counts of points in `tracks` that pass through voxels in volume
 
     Parameters
@@ -24,13 +24,20 @@ def track_counts(tracks, vol_dims, vox_sizes):
        volume dimensions in voxels, x, y, z.
     vox_sizes : sequence length 3
        voxel sizes in mm
+    return_elements : {True, False}, optional
+       If True, return also dictionary giving, for each non-zero count
+       voxel, the indices of the tracks passing through it.
 
     Returns
     -------
     tcs : ndarray shape `vol_dim`
        An array where entry ``tcs[x, y, z]`` is the number of tracks
        that passed through voxel at voxel coordinate x, y, z
-    
+    tes : dict
+       If `return_elements` is True, we also return a dict where the
+       keys are the tuples giving array indices of voxels with one or
+       more tracks passing through the voxel, and the values are a list
+       of indices of tracks passing through that voxel
     '''
     vol_dims = np.asarray(vol_dims).astype(np.int)
     vox_sizes = np.asarray(vox_sizes).astype(np.double)
@@ -38,6 +45,8 @@ def track_counts(tracks, vol_dims, vox_sizes):
     # output track counts array, flattened
     cdef cnp.ndarray[cnp.int_t, ndim=1] tcs = \
         np.zeros((n_voxels,), dtype=np.int)
+    if return_elements:
+        el_inds = {}
     # native C containers for vol_dims and vox_sizes
     cdef int vd[3]
     cdef double vxs[3]
@@ -78,8 +87,17 @@ def track_counts(tracks, vol_dims, vox_sizes):
             if el_no in in_inds:
                 continue
             in_inds.add(el_no)
-            # set value
+            # set elements into dict
+            if return_elements:
+                key = (out_pt[0], out_pt[1], out_pt[2])
+                if tcs[el_no]:
+                    el_inds[key].append(tno)
+                else:
+                    el_inds[key] = [tno]
+            # set value into counts
             tcs[el_no] += 1
+    if return_elements:
+        return tcs.reshape(vol_dims), el_inds
     return tcs.reshape(vol_dims)
 
 

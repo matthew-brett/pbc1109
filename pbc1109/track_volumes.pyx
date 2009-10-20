@@ -11,13 +11,13 @@ cdef extern from "math.h":
 
 
 def track_counts(tracks, vol_dims, vox_sizes):
-    ''' Count occurences of voxel points in `vtracks`
+    ''' Counts of points in `tracks` that pass through voxels in volume
 
     Parameters
     ----------
     tracks : sequence
-       sequence of tracks.  Tracks as ndarrays of shape (N, 3), where N
-       is the number of points in that track, and ``vtracks[t][n]`` is
+       sequence of tracks.  Tracks are ndarrays of shape (N, 3), where N
+       is the number of points in that track, and ``tracks[t][n]`` is
        the n-th point in the t-th track.  Points are of form x, y, z in
        *mm* coordinates.
     vol_dim : sequence lenth 3
@@ -29,61 +29,50 @@ def track_counts(tracks, vol_dims, vox_sizes):
     -------
     tcs : ndarray shape `vol_dim`
        An array where entry ``tcs[x, y, z]`` is the number of tracks
-       that passed through voxel at coordinate x, y, z
+       that passed through voxel at voxel coordinate x, y, z
     
     '''
+    vol_dims = np.asarray(vol_dims).astype(np.int)
+    vox_sizes = np.asarray(vox_sizes).astype(np.double)
     n_voxels = np.prod(vol_dims)
-    cdef cnp.ndarray tcs = np.zeros((n_voxels,), dtype=np.int32)
-    cdef cnp.ndarray vd = np.array(vol_dims).astype(np.int32)
-    cdef cnp.ndarray vxs = np.array(vox_sizes).astype(np.float32)
+    cdef cnp.ndarray[cnp.int_t, ndim=1] tcs = \
+        np.zeros((n_voxels,), dtype=np.int)
+    cdef int vd[3]
+    cdef double vxs[3]
     cdef cnp.ndarray t
-    cdef cnp.ndarray in_pt
-    cdef cnp.ndarray ct_els
+    cdef cnp.ndarray[cnp.float_t, ndim=1] in_pt
     cdef int out_pt[3]
-    cdef int tno, pno, cno
-    cdef int xy = vd[0] * vd[1]
+    cdef int tno, pno, cno, v
+    # fill native C arrays from inputs
+    for cno from 0 <=cno < 3:
+        vd[cno] = vol_dims[cno]
+        vxs[cno] = vox_sizes[cno]
+    # x slice size (C array ordering)
+    cdef int yz = vd[2] * vd[1]
     for tno from 0 <= tno < len(tracks):
         in_inds = set()
-        t = tracks[tno].astype(np.float32)
+        t = tracks[tno].astype(np.float)
+        # the loop below is time-critical
         for pno from 0 <= pno < t.shape[0]:
             in_pt = t[pno]
+            # set coordinates outside volume to volume edges
             for cno from 0 <=cno < 3:
-                v = <int>floor(in_pt[cno] * vxs[cno] + 0.5)
+                v = <int>floor(in_pt[cno] / vxs[cno] + 0.5)
                 if v < 0:
                     v = 0
                 elif v >= vd[cno]:
-                    v = vd[cno]
+                    v = vd[cno]-1 # last element in volume
                 out_pt[cno] = v
-            el_no = (out_pt[0] * xy +
-                     out_pt[1] * vd[0] +
+            # calculate element number in flattened tcs array
+            el_no = (out_pt[0] * yz +
+                     out_pt[1] * vd[2] +
                      out_pt[2])
+            # discard duplicates
             if el_no in in_inds:
                 continue
             in_inds.add(el_no)
+            # set value
             tcs[el_no] += 1
     return tcs.reshape(vol_dims)
 
 
-def _unique_elements(vtrack, dims):
-    ''' Convert voxel track coordinates to indices in flattened array
-
-    Parameters
-    ----------
-    vtrack : array shape (N, 3)
-       voxel xyz coordinates of points in track
-    dims : sequence
-       dimensions of 3D array to which `vtrack` coordinates refer
-
-    Returns
-    -------
-    unique_els : array shape (N,)
-       elements (indices into flattened array of shape `dims`) for each
-       point in `vtrack`.
-    '''
-    xd, yd, zd = dims
-    x, y, z = vtrack.T
-    np.clip(x, 0, xd, x)
-    np.clip(y, 0, yd, y)
-    np.clip(z, 0, zd, z)
-    el_nos = x + y*xd + z*xd*yd
-    return np.unique(el_nos)

@@ -20,7 +20,7 @@ def track_counts(tracks, vol_dims, vox_sizes):
        is the number of points in that track, and ``tracks[t][n]`` is
        the n-th point in the t-th track.  Points are of form x, y, z in
        *mm* coordinates.
-    vol_dim : sequence lenth 3
+    vol_dim : sequence length 3
        volume dimensions in voxels, x, y, z.
     vox_sizes : sequence length 3
        voxel sizes in mm
@@ -35,14 +35,19 @@ def track_counts(tracks, vol_dims, vox_sizes):
     vol_dims = np.asarray(vol_dims).astype(np.int)
     vox_sizes = np.asarray(vox_sizes).astype(np.double)
     n_voxels = np.prod(vol_dims)
+    # output track counts array, flattened
     cdef cnp.ndarray[cnp.int_t, ndim=1] tcs = \
         np.zeros((n_voxels,), dtype=np.int)
+    # native C containers for vol_dims and vox_sizes
     cdef int vd[3]
     cdef double vxs[3]
-    cdef cnp.ndarray t
+    # cython numpy pointer to individual track array
+    cdef cnp.ndarray[cnp.float_t, ndim=2] t
+    # cython numpy pointer to point in track array
     cdef cnp.ndarray[cnp.float_t, ndim=1] in_pt
     cdef int out_pt[3]
     cdef int tno, pno, cno, v
+    cdef cnp.npy_intp el_no
     # fill native C arrays from inputs
     for cno from 0 <=cno < 3:
         vd[cno] = vol_dims[cno]

@@ -45,7 +45,9 @@ def track_counts(tracks, vol_dims, vox_sizes):
     cdef cnp.ndarray[cnp.float_t, ndim=2] t
     # cython numpy pointer to point in track array
     cdef cnp.ndarray[cnp.float_t, ndim=1] in_pt
+    # processed point
     cdef int out_pt[3]
+    # various temporary loop and working variables
     cdef int tno, pno, cno, v
     cdef cnp.npy_intp el_no
     # fill native C arrays from inputs

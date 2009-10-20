@@ -21,6 +21,7 @@ def test_track_indices_asdict():
     
 
 def tracks_to_expected(tracks, vol_dims):
+    # simulate expected behavior of module
     counts = np.zeros(vol_dims, dtype=np.uint16)
     elements = {}
     vol_dims = np.asarray(vol_dims)
@@ -64,6 +65,7 @@ def test_track_volumes():
     vol_dims = (5, 10, 15)
     tracks = ([[-1, 0, 1],
                [0, 0.1, 0],
+               [1, 1, 1],
                [1, 1, 1],
                [2, 2, 2]],
               [[0.7, 0, 0],

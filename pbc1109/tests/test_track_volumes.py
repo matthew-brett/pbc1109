@@ -27,7 +27,7 @@ def tracks_to_expected(tracks, vol_dims):
     for t_no, t in enumerate(tracks):
         u_ps = set()
         ti = np.round(t).astype(np.int32)
-        for p in ti:
+        for p_no, p in enumerate(ti):
             if np.any(p < 0):
                 p[p<0] = 0
             too_high = p >= vol_dims
@@ -38,10 +38,11 @@ def tracks_to_expected(tracks, vol_dims):
                 continue
             u_ps.add(p)
             counts[p] +=1
+            val = (t_no, p_no)
             if p not in elements:
-                elements[p] = [t_no]
+                elements[p] = [val]
             else:
-                elements[p].append(t_no)                                
+                elements[p].append(val)                                
     return counts, elements
 
 
@@ -55,7 +56,10 @@ def test_track_volumes():
     tcs, tes = tv.track_counts(tracks, vol_dims, [1,1,1])
     yield assert_array_equal, tcs, ex_counts
     yield assert_equal, tes, ex_els
-    
+    # check only counts returned for return_elements=False
+    tcs = tv.track_counts(tracks, vol_dims, [1,1,1], False)
+    yield assert_array_equal, tcs, ex_counts
+
     # non-unique points, non-integer points, points outside
     vol_dims = (5, 10, 15)
     tracks = ([[-1, 0, 1],

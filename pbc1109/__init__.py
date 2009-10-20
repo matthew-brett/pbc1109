@@ -2,4 +2,5 @@
 
 from .data import PBCData
 
-from .utils import mm2vox, vox2mm
+from .utils import mm2vox, vox2mm, track_indices_asdict
+

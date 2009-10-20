@@ -10,7 +10,16 @@ from nose.tools import assert_true, assert_false, \
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 import pbc1109.track_volumes as tv
-#import pbc1109.tvs as tv
+import pbc1109
+
+def test_track_indices_asdict():
+
+    vol_dims = (5, 10, 15)
+    tracks = ([[0, 0.1, 0],[1, 1, 1], [2, 2, 2]], [[0.7, 0, 0], [1, 1, 1],[1, 2, 2]])
+    tracks = [np.array(t) for t in tracks]
+    vold=pbc1109.track_indices_asdict(tracks,vol_dims)
+    yield assert_equal, len(vold[(1,1,1)]), 2    
+    
 
 def tracks_to_expected(tracks, vol_dims):
     expected = np.zeros(vol_dims, dtype=np.uint16)

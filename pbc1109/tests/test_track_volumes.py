@@ -26,8 +26,6 @@ def tracks_to_expected(tracks, vol_dims):
     counts = np.zeros(vol_dims, dtype=np.int32)
     elements = np.empty(vol_dims, dtype=object)
     elf = elements.ravel()
-    for e in range(len(elf)):
-        elf[e] = []
     vol_dims = np.asarray(vol_dims)
     for t_no, t in enumerate(tracks):
         u_ps = set()
@@ -42,9 +40,12 @@ def tracks_to_expected(tracks, vol_dims):
             if p in u_ps:
                 continue
             u_ps.add(p)
-            counts[p] +=1
             val = (t_no, p_no)
-            elements[p].append(val)                                
+            if counts[p]:
+                elements[p].append(val)
+            else:
+                elements[p] = [val]
+            counts[p] +=1
     return counts, elements
 
 

@@ -53,10 +53,9 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     cdef cnp.ndarray[cnp.int_t, ndim=1] tcs = \
         np.zeros((n_voxels,), dtype=np.int)
     # pointer to output track indices
-    cdef cnp.ndarray[object, ndim=1] el_inds
     cdef cnp.npy_intp i
     if return_elements:
-        el_inds = np.empty((n_voxels,), dtype=object)
+        el_inds = {}
     # cython numpy pointer to individual track array
     cdef cnp.ndarray[cnp.float_t, ndim=2] t
     # cython numpy pointer to point in track array
@@ -100,14 +99,16 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
             in_inds.add(el_no)
             # set elements into object array
             if ret_elf:
+                key = (out_pt[0], out_pt[1], out_pt[2])
+                val = (tno, pno)
                 if tcs[el_no]:
-                    el_inds[el_no].append((tno, pno))
+                    el_inds[key].append(val)
                 else:
-                    el_inds[el_no] = [(tno, pno)]
+                    el_inds[key] = [val]
             # set value into counts
             tcs[el_no] += 1
     if ret_elf:
-        return tcs.reshape(vol_dims), el_inds.reshape(vol_dims)
+        return tcs.reshape(vol_dims), el_inds
     return tcs.reshape(vol_dims)
 
 

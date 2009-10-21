@@ -24,9 +24,7 @@ def tracks_to_expected(tracks, vol_dims):
     # simulate expected behavior of module
     vol_dims = np.array(vol_dims, dtype=np.int32)
     counts = np.zeros(vol_dims, dtype=np.int32)
-    elements = np.empty(vol_dims, dtype=object)
-    elf = elements.ravel()
-    vol_dims = np.asarray(vol_dims)
+    elements = {}
     for t_no, t in enumerate(tracks):
         u_ps = set()
         ti = np.round(t).astype(np.int32)

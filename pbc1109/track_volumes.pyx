@@ -39,10 +39,9 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     tcs : ndarray shape `vol_dim`
        An array where entry ``tcs[x, y, z]`` is the number of tracks
        that passed through voxel at voxel coordinate x, y, z
-    tes : dict
-       If `return_elements` is True, we also return a dict where the
-       keys are tuples giving array indices of voxels with one or more
-       track(s) passing through the voxel.  The values are a list of
+    tes : ndarray dtype np.object, shape `vol_dim`
+       If `return_elements` is True, we also return an object array with
+       one object per voxel. The objects at each voxel are a list of
        tuples ``tps`` where ``tps[0]`` is the index of the track that
        passed through the voxel, and ``tps[1]`` is the index of the
        first point in the track that passed through the voxel.
@@ -53,8 +52,13 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     # output track counts array, flattened
     cdef cnp.ndarray[cnp.int_t, ndim=1] tcs = \
         np.zeros((n_voxels,), dtype=np.int)
+    # pointer to output track indices
+    cdef cnp.ndarray[object, ndim=1] el_inds
+    cdef cnp.npy_intp i
     if return_elements:
-        el_inds = {}
+        el_inds = np.empty((n_voxels,), dtype=object)
+        for i in range(n_voxels):
+            el_inds[i] = []
     # native C containers for vol_dims and vox_sizes
     cdef int vd[3]
     cdef double vxs[3]
@@ -68,23 +72,23 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     cdef int tno, pno, cno, v
     cdef cnp.npy_intp el_no
     # fill native C arrays from inputs
-    for cno from 0 <=cno < 3:
+    for cno in range(3):
         vd[cno] = vol_dims[cno]
         vxs[cno] = vox_sizes[cno]
     # return_elements to C native
     cdef int ret_elf = <int>return_elements
     # x slice size (C array ordering)
     cdef cnp.npy_intp yz = vd[1] * vd[2]
-    for tno from 0 <= tno < len(tracks):
+    for tno in range(len(tracks)):
         t = tracks[tno].astype(np.float)
         # set to find unique voxel points in track
         in_inds = set()
         # the loop below is time-critical
-        for pno from 0 <= pno < t.shape[0]:
+        for pno in range(t.shape[0]):
             in_pt = t[pno]
             # Round to voxel coordinates, and set coordinates outside
             # volume to volume edges
-            for cno from 0 <=cno < 3:
+            for cno in range(3):
                 v = <int>floor(in_pt[cno] / vxs[cno] + 0.5)
                 if v < 0:
                     v = 0
@@ -97,18 +101,13 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
             if el_no in in_inds:
                 continue
             in_inds.add(el_no)
-            # set elements into dict
+            # set elements into object array
             if ret_elf:
-                key = (out_pt[0], out_pt[1], out_pt[2])
-                val = (tno, pno)
-                if tcs[el_no]:
-                    el_inds[key].append(val)
-                else:
-                    el_inds[key] = [val]
+                el_inds[el_no].append((tno, pno))
             # set value into counts
             tcs[el_no] += 1
     if ret_elf:
-        return tcs.reshape(vol_dims), el_inds
+        return tcs.reshape(vol_dims), el_inds.reshape(vol_dims)
     return tcs.reshape(vol_dims)
 
 

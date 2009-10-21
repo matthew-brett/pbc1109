@@ -23,7 +23,10 @@ def test_track_indices_asdict():
 def tracks_to_expected(tracks, vol_dims):
     # simulate expected behavior of module
     counts = np.zeros(vol_dims, dtype=np.uint16)
-    elements = {}
+    elements = np.empty(vol_dims, dtype=object)
+    elf = elements.ravel()
+    for e in range(len(elf)):
+        elf[e] = []
     vol_dims = np.asarray(vol_dims)
     for t_no, t in enumerate(tracks):
         u_ps = set()
@@ -40,10 +43,7 @@ def tracks_to_expected(tracks, vol_dims):
             u_ps.add(p)
             counts[p] +=1
             val = (t_no, p_no)
-            if p not in elements:
-                elements[p] = [val]
-            else:
-                elements[p].append(val)                                
+            elements[p].append(val)                                
     return counts, elements
 
 
@@ -56,7 +56,7 @@ def test_track_volumes():
     ex_counts, ex_els = tracks_to_expected(tracks, vol_dims)
     tcs, tes = tv.track_counts(tracks, vol_dims, [1,1,1])
     yield assert_array_equal, tcs, ex_counts
-    yield assert_equal, tes, ex_els
+    yield assert_array_equal, tes, ex_els
     # check only counts returned for return_elements=False
     tcs = tv.track_counts(tracks, vol_dims, [1,1,1], False)
     yield assert_array_equal, tcs, ex_counts
@@ -76,7 +76,7 @@ def test_track_volumes():
     ex_counts, ex_els = tracks_to_expected(tracks, vol_dims)
     tcs, tes = tv.track_counts(tracks, vol_dims, [1,1,1])
     yield assert_array_equal, tcs, ex_counts
-    yield assert_equal, tes, ex_els
+    yield assert_array_equal, tes, ex_els
     # points with non-unit voxel sizes
     vox_sizes = [1.4, 2.1, 3.7]
     float_tracks = []
@@ -84,7 +84,7 @@ def test_track_volumes():
         float_tracks.append(t * vox_sizes)
     tcs, tes = tv.track_counts(float_tracks, vol_dims, vox_sizes)
     yield assert_array_equal, tcs, ex_counts
-    yield assert_equal, tes, ex_els
+    yield assert_array_equal, tes, ex_els
     
                
               

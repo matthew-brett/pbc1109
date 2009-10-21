@@ -38,7 +38,7 @@ def tracks_to_expected(tracks, vol_dims):
             if p in u_ps:
                 continue
             u_ps.add(p)
-            val = (t_no, p_no)
+            val = t_no
             if counts[p]:
                 elements[p].append(val)
             else:

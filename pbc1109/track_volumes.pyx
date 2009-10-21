@@ -42,9 +42,8 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     tes : ndarray dtype np.object, shape `vol_dim`
        If `return_elements` is True, we also return an object array with
        one object per voxel. The objects at each voxel are a list of
-       tuples ``tps`` where ``tps[0]`` is the index of the track that
-       passed through the voxel, and ``tps[1]`` is the index of the
-       first point in the track that passed through the voxel.
+       integers, where the integers are the indices of the track that
+       passed through the voxel.
     '''
     vol_dims = np.asarray(vol_dims).astype(np.int)
     vox_sizes = np.asarray(vox_sizes).astype(np.double)
@@ -100,7 +99,7 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
             # set elements into object array
             if ret_elf:
                 key = (out_pt[0], out_pt[1], out_pt[2])
-                val = (tno, pno)
+                val = tno
                 if tcs[el_no]:
                     el_inds[key].append(val)
                 else:

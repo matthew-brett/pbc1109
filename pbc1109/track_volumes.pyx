@@ -59,9 +59,6 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
         el_inds = np.empty((n_voxels,), dtype=object)
         for i in range(n_voxels):
             el_inds[i] = []
-    # native C containers for vol_dims and vox_sizes
-    cdef int vd[3]
-    cdef double vxs[3]
     # cython numpy pointer to individual track array
     cdef cnp.ndarray[cnp.float_t, ndim=2] t
     # cython numpy pointer to point in track array
@@ -72,6 +69,8 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     cdef int tno, pno, cno, v
     cdef cnp.npy_intp el_no
     # fill native C arrays from inputs
+    cdef int vd[3]
+    cdef double vxs[3]
     for cno in range(3):
         vd[cno] = vol_dims[cno]
         vxs[cno] = vox_sizes[cno]

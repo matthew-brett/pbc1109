@@ -14,9 +14,9 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     ''' Counts of points in `tracks` that pass through voxels in volume
 
     We find whether a point passed through a track by rounding the mm
-    point value to voxels.  For a track that passes through a voxel more
+    point values to voxels.  For a track that passes through a voxel more
     than once, we only record counts and elements for the first point in
-    the line.
+    the line that enters the voxel. 
 
     Parameters
     ----------
@@ -30,9 +30,9 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     vox_sizes : sequence length 3
        voxel sizes in mm
     return_elements : {True, False}, optional
-       If True, return also dictionary giving, for each non-zero count
-       voxel, the indices of the tracks, indices of track points,
-       passing through it.
+       If True, also return object array with one list per voxel giving
+       track indices and point indices passing through the voxel (see
+       below)
 
     Returns
     -------

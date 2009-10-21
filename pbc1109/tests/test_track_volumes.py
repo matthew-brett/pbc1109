@@ -22,7 +22,7 @@ def test_track_indices_asdict():
 
 def tracks_to_expected(tracks, vol_dims):
     # simulate expected behavior of module
-    counts = np.zeros(vol_dims, dtype=np.uint16)
+    counts = np.zeros(vol_dims, dtype=np.int32)
     elements = np.empty(vol_dims, dtype=object)
     elf = elements.ravel()
     for e in range(len(elf)):

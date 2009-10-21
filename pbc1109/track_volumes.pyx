@@ -66,8 +66,8 @@ def track_counts(tracks, vol_dims, vox_sizes, return_elements=True):
     # processed point
     cdef int out_pt[3]
     # various temporary loop and working variables
-    cdef int tno, pno, cno, v
-    cdef cnp.npy_intp el_no
+    cdef int tno, pno, cno
+    cdef cnp.npy_intp el_no, v
     # fill native C arrays from inputs
     cdef int vd[3]
     cdef double vxs[3]

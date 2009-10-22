@@ -56,6 +56,7 @@ class SubjScan(object):
             self._glob_prefix + 'fiber_track_mni.trk')
         if trk_fname is None:
             return None
+                
         streams, hdr = tv.read(trk_fname)
         self._cache['hdr'] = hdr
         self._cache['streams'] = streams

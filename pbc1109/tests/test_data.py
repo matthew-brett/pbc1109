@@ -15,7 +15,12 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal
 import pbc1109.data as pd
 
 data_path = os.path.join(os.path.dirname(__file__), 'data')
+import pbc1109.venn as vn
 
+def test_confusion_matrix():
+        
+    cm = vn.ConfusionMatrix(np.array([[0,0],[0,0],[1,1],[1,2]]))
+    yield assert_array_almost_equal, cm.counts, np.array([[ 2.,  0.,  0.],[ 0.,  1.,  1.]])
 
 def test_load_txt():
     inp_str = \
